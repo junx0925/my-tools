@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>單位換算工具</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --border: #2e2e2e;
+    --accent: #e8ff47;
+    --accent2: #47ffe8;
+    --text: #f0f0f0;
+    --muted: #666;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Noto Sans TC’, sans-serif;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 2rem 1rem;
+}
+
+header {
+text-align: center;
+margin-bottom: 2.5rem;
+animation: fadeDown 0.6s ease both;
+}
+
+header h1 {
+font-family: ‘Space Mono’, monospace;
+font-size: clamp(1.8rem, 5vw, 3rem);
+letter-spacing: -1px;
+color: var(–accent);
+}
+
+header p {
+color: var(–muted);
+margin-top: 0.4rem;
+font-size: 0.9rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+
+.tabs {
+display: flex;
+gap: 0.5rem;
+margin-bottom: 1.5rem;
+flex-wrap: wrap;
+justify-content: center;
+animation: fadeDown 0.6s 0.1s ease both;
+}
+
+.tab {
+background: var(–surface);
+border: 1px solid var(–border);
+color: var(–muted);
+padding: 0.5rem 1.2rem;
+border-radius: 999px;
+cursor: pointer;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.8rem;
+transition: all 0.2s;
+letter-spacing: 1px;
+}
+
+.tab:hover { border-color: var(–accent); color: var(–accent); }
+.tab.active {
+background: var(–accent);
+color: #000;
+border-color: var(–accent);
+font-weight: 700;
+}
+
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 2rem;
+width: 100%;
+max-width: 480px;
+animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.converter { display: none; }
+.converter.active { display: block; }
+
+.field {
+margin-bottom: 1.2rem;
+}
+
+.field label {
+display: block;
+font-size: 0.75rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 1.5px;
+margin-bottom: 0.5rem;
+font-family: ‘Space Mono’, monospace;
+}
+
+.input-row {
+display: flex;
+gap: 0.5rem;
+}
+
+.input-row input {
+flex: 1;
+background: var(–bg);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 0.75rem 1rem;
+border-radius: 8px;
+font-size: 1.1rem;
+font-family: ‘Space Mono’, monospace;
+transition: border-color 0.2s;
+outline: none;
+width: 100%;
+}
+
+.input-row input:focus { border-color: var(–accent); }
+
+.input-row select {
+background: var(–bg);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 0.75rem 0.8rem;
+border-radius: 8px;
+font-size: 0.85rem;
+outline: none;
+cursor: pointer;
+transition: border-color 0.2s;
+}
+
+.input-row select:focus { border-color: var(–accent); }
+
+.arrow {
+text-align: center;
+font-size: 1.4rem;
+color: var(–accent2);
+margin: 0.8rem 0;
+animation: pulse 2s infinite;
+}
+
+.result-box {
+background: var(–bg);
+border: 1px solid var(–accent);
+border-radius: 8px;
+padding: 1rem 1.2rem;
+margin-top: 1rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.result-label {
+font-size: 0.75rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 1.5px;
+font-family: ‘Space Mono’, monospace;
+}
+
+.result-value {
+font-family: ‘Space Mono’, monospace;
+font-size: 1.4rem;
+color: var(–accent);
+font-weight: 700;
+}
+
+.formula {
+margin-top: 1rem;
+font-size: 0.78rem;
+color: var(–muted);
+text-align: center;
+font-family: ‘Space Mono’, monospace;
+background: #111;
+padding: 0.5rem 1rem;
+border-radius: 6px;
+}
+
+footer {
+margin-top: 3rem;
+font-size: 0.75rem;
+color: var(–muted);
+font-family: ‘Space Mono’, monospace;
+letter-spacing: 1px;
+animation: fadeUp 0.6s 0.4s ease both;
+}
+
+@keyframes fadeDown {
+from { opacity: 0; transform: translateY(-16px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(16px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.4; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>⚡ CONVERTER</h1>
+  <p>單位換算工具</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('length')">📏 長度</button>
+  <button class="tab" onclick="switchTab('weight')">⚖️ 重量</button>
+  <button class="tab" onclick="switchTab('temp')">🌡️ 溫度</button>
+  <button class="tab" onclick="switchTab('area')">📐 面積</button>
+</div>
+
+<div class="card">
+
+  <!-- 長度 -->
+
+  <div class="converter active" id="length">
+    <div class="field">
+      <label>輸入值</label>
+      <div class="input-row">
+        <input type="number" id="length-input" placeholder="0" oninput="convertLength()">
+        <select id="length-from" onchange="convertLength()">
+          <option value="m">公尺 m</option>
+          <option value="km">公里 km</option>
+          <option value="cm">公分 cm</option>
+          <option value="mm">毫米 mm</option>
+          <option value="ft">英尺 ft</option>
+          <option value="in">英寸 in</option>
+          <option value="mi">英里 mi</option>
+        </select>
+      </div>
+    </div>
+    <div class="arrow">↕</div>
+    <div class="field">
+      <label>換算成</label>
+      <div class="input-row">
+        <select id="length-to" onchange="convertLength()" style="flex:1">
+          <option value="cm">公分 cm</option>
+          <option value="m">公尺 m</option>
+          <option value="km">公里 km</option>
+          <option value="mm">毫米 mm</option>
+          <option value="ft">英尺 ft</option>
+          <option value="in">英寸 in</option>
+          <option value="mi">英里 mi</option>
+        </select>
+      </div>
+    </div>
+    <div class="result-box">
+      <span class="result-label">結果</span>
+      <span class="result-value" id="length-result">—</span>
+    </div>
+    <div class="formula" id="length-formula">輸入數值後顯示換算公式</div>
+  </div>
+
+  <!-- 重量 -->
+
+  <div class="converter" id="weight">
+    <div class="field">
+      <label>輸入值</label>
+      <div class="input-row">
+        <input type="number" id="weight-input" placeholder="0" oninput="convertWeight()">
+        <select id="weight-from" onchange="convertWeight()">
+          <option value="kg">公斤 kg</option>
+          <option value="g">公克 g</option>
+          <option value="lb">磅 lb</option>
+          <option value="oz">盎司 oz</option>
+          <option value="t">公噸 t</option>
+        </select>
+      </div>
+    </div>
+    <div class="arrow">↕</div>
+    <div class="field">
+      <label>換算成</label>
+      <div class="input-row">
+        <select id="weight-to" onchange="convertWeight()" style="flex:1">
+          <option value="lb">磅 lb</option>
+          <option value="kg">公斤 kg</option>
+          <option value="g">公克 g</option>
+          <option value="oz">盎司 oz</option>
+          <option value="t">公噸 t</option>
+        </select>
+      </div>
+    </div>
+    <div class="result-box">
+      <span class="result-label">結果</span>
+      <span class="result-value" id="weight-result">—</span>
+    </div>
+    <div class="formula" id="weight-formula">輸入數值後顯示換算公式</div>
+  </div>
+
+  <!-- 溫度 -->
+
+  <div class="converter" id="temp">
+    <div class="field">
+      <label>輸入值</label>
+      <div class="input-row">
+        <input type="number" id="temp-input" placeholder="0" oninput="convertTemp()">
+        <select id="temp-from" onchange="convertTemp()">
+          <option value="c">攝氏 °C</option>
+          <option value="f">華氏 °F</option>
+          <option value="k">克氏 K</option>
+        </select>
+      </div>
+    </div>
+    <div class="arrow">↕</div>
+    <div class="field">
+      <label>換算成</label>
+      <div class="input-row">
+        <select id="temp-to" onchange="convertTemp()" style="flex:1">
+          <option value="f">華氏 °F</option>
+          <option value="c">攝氏 °C</option>
+          <option value="k">克氏 K</option>
+        </select>
+      </div>
+    </div>
+    <div class="result-box">
+      <span class="result-label">結果</span>
+      <span class="result-value" id="temp-result">—</span>
+    </div>
+    <div class="formula" id="temp-formula">輸入數值後顯示換算公式</div>
+  </div>
+
+  <!-- 面積 -->
+
+  <div class="converter" id="area">
+    <div class="field">
+      <label>輸入值</label>
+      <div class="input-row">
+        <input type="number" id="area-input" placeholder="0" oninput="convertArea()">
+        <select id="area-from" onchange="convertArea()">
+          <option value="m2">平方公尺 m²</option>
+          <option value="km2">平方公里 km²</option>
+          <option value="cm2">平方公分 cm²</option>
+          <option value="ha">公頃 ha</option>
+          <option value="ft2">平方英尺 ft²</option>
+          <option value="acre">英畝 acre</option>
+          <option value="ping">坪</option>
+        </select>
+      </div>
+    </div>
+    <div class="arrow">↕</div>
+    <div class="field">
+      <label>換算成</label>
+      <div class="input-row">
+        <select id="area-to" onchange="convertArea()" style="flex:1">
+          <option value="ping">坪</option>
+          <option value="m2">平方公尺 m²</option>
+          <option value="km2">平方公里 km²</option>
+          <option value="cm2">平方公分 cm²</option>
+          <option value="ha">公頃 ha</option>
+          <option value="ft2">平方英尺 ft²</option>
+          <option value="acre">英畝 acre</option>
+        </select>
+      </div>
+    </div>
+    <div class="result-box">
+      <span class="result-label">結果</span>
+      <span class="result-value" id="area-result">—</span>
+    </div>
+    <div class="formula" id="area-formula">輸入數值後顯示換算公式</div>
+  </div>
+
+</div>
+
+<footer>GITHUB PAGES · 免費託管</footer>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.converter').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// 長度換算（base: 公尺）
+const lengthToM = { m:1, km:1000, cm:0.01, mm:0.001, ft:0.3048, in:0.0254, mi:1609.344 };
+function convertLength() {
+  const val = parseFloat(document.getElementById('length-input').value);
+  const from = document.getElementById('length-from').value;
+  const to = document.getElementById('length-to').value;
+  if (isNaN(val)) { document.getElementById('length-result').textContent = '—'; return; }
+  const result = val * lengthToM[from] / lengthToM[to];
+  document.getElementById('length-result').textContent = formatNum(result) + ' ' + to;
+  document.getElementById('length-formula').textContent = `${val} ${from} × ${lengthToM[from] / lengthToM[to]} = ${formatNum(result)} ${to}`;
+}
+
+// 重量換算（base: 公克）
+const weightToG = { kg:1000, g:1, lb:453.592, oz:28.3495, t:1000000 };
+function convertWeight() {
+  const val = parseFloat(document.getElementById('weight-input').value);
+  const from = document.getElementById('weight-from').value;
+  const to = document.getElementById('weight-to').value;
+  if (isNaN(val)) { document.getElementById('weight-result').textContent = '—'; return; }
+  const result = val * weightToG[from] / weightToG[to];
+  document.getElementById('weight-result').textContent = formatNum(result) + ' ' + to;
+  document.getElementById('weight-formula').textContent = `${val} ${from} × ${weightToG[from] / weightToG[to]} = ${formatNum(result)} ${to}`;
+}
+
+// 溫度換算
+function convertTemp() {
+  const val = parseFloat(document.getElementById('temp-input').value);
+  const from = document.getElementById('temp-from').value;
+  const to = document.getElementById('temp-to').value;
+  if (isNaN(val)) { document.getElementById('temp-result').textContent = '—'; return; }
+  let celsius;
+  if (from === 'c') celsius = val;
+  else if (from === 'f') celsius = (val - 32) * 5/9;
+  else celsius = val - 273.15;
+  let result;
+  if (to === 'c') result = celsius;
+  else if (to === 'f') result = celsius * 9/5 + 32;
+  else result = celsius + 273.15;
+  document.getElementById('temp-result').textContent = formatNum(result) + ' °' + to.toUpperCase().replace('K','') + (to==='k'?'K':'');
+  const formulas = {
+    'c-f': '(°C × 9/5) + 32', 'c-k': '°C + 273.15',
+    'f-c': '(°F − 32) × 5/9', 'f-k': '(°F − 32) × 5/9 + 273.15',
+    'k-c': 'K − 273.15', 'k-f': '(K − 273.15) × 9/5 + 32'
+  };
+  document.getElementById('temp-formula').textContent = from === to ? `${val} (不需換算)` : `公式：${formulas[from+'-'+to]}`;
+}
+
+// 面積換算（base: 平方公尺）
+const areaToM2 = { m2:1, km2:1e6, cm2:0.0001, ha:10000, ft2:0.092903, acre:4046.86, ping:3.30579 };
+function convertArea() {
+  const val = parseFloat(document.getElementById('area-input').value);
+  const from = document.getElementById('area-from').value;
+  const to = document.getElementById('area-to').value;
+  if (isNaN(val)) { document.getElementById('area-result').textContent = '—'; return; }
+  const result = val * areaToM2[from] / areaToM2[to];
+  document.getElementById('area-result').textContent = formatNum(result) + ' ' + to;
+  document.getElementById('area-formula').textContent = `${val} ${from} = ${formatNum(result)} ${to}`;
+}
+
+function formatNum(n) {
+  if (Math.abs(n) >= 1e6 || (Math.abs(n) < 0.0001 && n !== 0)) return n.toExponential(4);
+  return parseFloat(n.toPrecision(6)).toString();
+}
+</script>
+
+</body>
+</html>
